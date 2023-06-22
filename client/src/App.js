@@ -1,5 +1,15 @@
+import io from 'socket.io-client';
+import { useEffect, useState } from 'react';
 
 const App = () => {
+
+  const [socket, setSocket] = useState('');
+
+  useEffect(() => {
+    const newSocket = io(process.env.PORT || "http://localhost:8000");
+    setSocket(newSocket);
+  }, []);
+
   return (
     <div className="app">
       <header className="app-title">
