@@ -6,7 +6,8 @@ const App = () => {
   const [socket, setSocket] = useState('');
 
   useEffect(() => {
-    const newSocket = io(process.env.PORT || "http://localhost:8000");
+    const newSocket = io('ws://localhost:8000', { transports: ["websocket"] });
+
     setSocket(newSocket);
   }, []);
 
