@@ -1,15 +1,34 @@
 import io from 'socket.io-client';
 import { useEffect, useState } from 'react';
+import shortid from 'shortid';
 
 const App = () => {
 
   const [socket, setSocket] = useState('');
+  const [tasks, setTasks] = useState([{name: 'odkurzyć', id: 1 }, {name: 'zrobić pranie', id: 2}]);
+  const [taskName, setTaskName] = useState('')
 
   useEffect(() => {
-    const newSocket = io('ws://localhost:8000', { transports: ["websocket"] });
+    const newSocket = io(process.env.PORT || "http://localhost:8000/");
 
     setSocket(newSocket);
   }, []);
+
+  const removeTask = (id) => {
+    setTasks(tasks => tasks.filter(task => task.id !== id));
+    socket.emit('removeTask', id)
+  };
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    addTask({name: taskName, id: shortid()});
+    socket.emit('addTask', {name: taskName, id: shortid()});
+    setTaskName('');
+  };
+
+  const addTask = (task) => {
+    setTasks(tasks => [...tasks, task]);
+  }
 
   return (
     <div className="app">
@@ -19,12 +38,10 @@ const App = () => {
       <section className="tasks-section" id="tasks-section">
         <h2>Tasks</h2>
         <ul className="tasks-list" id="tasks-list">
-          <li className="task">Wash dishes <button className="btn btn-red">Remove</button></li>
-          <li className="task">Do the laundry <button className="btn btn-red">Remove</button></li>
-          <li className="task">Take out the trash <button className="btn btn-red">Remove</button></li>
+          {tasks.map(task => <li className="task" key={task.id}>{task.name}<button className="btn btn-red" onClick={() => removeTask(task.id)} >Remove</button></li>)}
         </ul>
-        <form id="add-task-form">
-          <input className="text-input" type="text" placeholder="add task" id="task-name"></input>
+        <form id="add-task-form" onSubmit={(e) => submitForm(e)}>
+          <input className="text-input" type="text" placeholder="add task" id="task-name" value={taskName} onChange={(e) => setTaskName(e.target.value)}></input>
           <button className="btn" type="submit">Add task</button>
         </form>
       </section>

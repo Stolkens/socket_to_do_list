@@ -6,7 +6,7 @@ const app = express();
 
 let tasks = [];
 
-const server = app.listen(8000, () => {
+const server = app.listen(process.env.PORT || 8000, () => {
   console.log('Server is running...');
 });
 
@@ -17,7 +17,7 @@ app.use((req, res) => {
 const io = socket(server);
 
 io.on('connection', (socket) => {
-  console.log('we got new socket!' + socket.id);
+  console.log('we got new socket! ' + socket.id);
 
     io.to(socket.id).emit('updateData', tasks);
     console.log('tasks',tasks)
