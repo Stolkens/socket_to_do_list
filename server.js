@@ -1,6 +1,5 @@
 const express = require('express');
 const socket = require('socket.io');
-const path = require('path');
 
 const app = express();
 
@@ -20,25 +19,23 @@ io.on('connection', (socket) => {
   console.log('we got new socket! ' + socket.id);
 
     io.to(socket.id).emit('updateData', tasks);
-    console.log('tasks',tasks)
+    console.log('tasks server',tasks)
 
     socket.on('addTask', (taskData) => { 
         
-        tasks.push({name: taskData.name, taskDataId: socket.id});
+        tasks.push({name: taskData.name, id: taskData.id});
 
         socket.broadcast.emit('addTask', taskData + ' was added to tasks');
     
       });
 
       socket.on('removeTask', (taskDataId) => { 
-        
-        const taskIndex = tasks.findIndex(task => taskDataId === task.taskDataId);
-        
-        if(taskIndex !== -1) {
-          const taskName = tasks[taskIndex].name;
-          tasks.splice(taskIndex, 1);
-          socket.broadcast.emit('removeTask', taskName + ' was removed from tasks');
-        }
+
+        tasks = tasks.filter( task=> task.id !== taskDataId);
+
+        socket.broadcast.emit('removeTask', taskDataId + ' was removed from tasks');
+
+        console.log('tasks po usunieciu', tasks);
     
       });
 
